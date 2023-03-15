@@ -3,11 +3,13 @@ const router = express.Router();
 const User = require("../models/Users");
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
 //import the env files variables
 require("dotenv").config();
 
+
+const secretKEy = process.env.SECRET_KEY;
 
 // Create a User using POST "/api/auth/createuser" No login required
 router.post('/createuser',
@@ -16,7 +18,7 @@ body("email","Please enter unique email").isEmail(),
 body("password","password above 5 character").isLength({min:5})
 ,async(req, res) =>{
 
-  const secretKEy = process.env.SECRET_KEY;
+  
   
     //return function return error if there is a error
     const errors = validationResult(req);
@@ -40,32 +42,76 @@ body("password","password above 5 character").isLength({min:5})
     //creating a hash password
     const password = await bcrypt.hash(req.body.password, salt);
 
-
-    //creating json web token
-    const data = {
-      user:{
-        id: User.id
-      }
-    }
-    const jwtAuth = jwt.sign(data,secretKEy);
-    console.log(jwtAuth);
-
-
-
     //Create a new User
     user = await User.create({
         name: req.body.name,
         email: req.body.email,
         password: password
       })
-      res.json(user)
+
+      //creating json web token
+    const data = {
+      user:{
+        id: user.id
+      }
+    }
+    const jwtAuth = jwt.sign(data,secretKEy);
+
+
+      res.json({jwtAuth});
+
     } catch (error) {
       
       console.error(error.message);
-      res.status(500).send("some internal Error occurred");
+      res.status(500).send("internal Server Error");
     }
 
     });
+
+
+
+    // Create a login using POST "/api/auth/login" No login required
+router.post('/login',
+body("email","Please enter unique email").isEmail(),
+body("password","password must be required").exists()
+,async(req, res) =>{
+
+   //return function return error if there is a error
+   const errors = validationResult(req);
+   if (!errors.isEmpty()) {
+     return res.status(400).json({ errors: errors.array() });
+   }
+
+   const {email, password} = req.body;
+  try {
+    const user = await User.findOne({email})
+    if(!user){
+      return res.status(400).json({error:"Please use the correct values"});
+    }
+
+    const comparePass = await bcrypt.compare(password,user.password);
+
+    if(!comparePass){
+      return res.status(400).json({error:"Please use the correct values"});
+    }
+
+    //creating json web token
+    const data = {
+      user:{
+        id: user.id
+      }
+    }
+    const jwtAuth = jwt.sign(data,secretKEy);
+
+
+      res.json({jwtAuth});
+
+
+  } catch (error) {
+    console.error(error.message);
+      res.status(500).send("internal Server Error");
+  }
+});
 
 
 module.exports = router;
