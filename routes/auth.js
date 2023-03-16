@@ -4,14 +4,15 @@ const User = require("../models/Users");
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const getuser = require('../middleware/getuser');
 
-//import the env files variables
+//require to import the env files variables
 require("dotenv").config();
 
 
 const secretKEy = process.env.SECRET_KEY;
 
-// Create a User using POST "/api/auth/createuser" No login required
+// route1 create user using POST "/api/auth/createuser" No login required
 router.post('/createuser',
 body("name","Please enter valid name").isLength({min:3}),
 body("email","Please enter unique email").isEmail(),
@@ -70,7 +71,7 @@ body("password","password above 5 character").isLength({min:5})
 
 
 
-    // Create a login using POST "/api/auth/login" No login required
+    // route2 create login using POST "/api/auth/login" No login required
 router.post('/login',
 body("email","Please enter unique email").isEmail(),
 body("password","password must be required").exists()
@@ -112,6 +113,24 @@ body("password","password must be required").exists()
       res.status(500).send("internal Server Error");
   }
 });
+
+
+// route3 get loggedin user detail using POST "/api/auth/getuser" login required
+router.post('/getuser', getuser , async(req, res) =>{
+try {
+  userId = req.user.id;
+  const user = await User.findById(userId).select("-password");
+  res.send(user);
+} catch (error) {
+  console.error(error.message);
+    res.status(500).send("internal Server Error");
+}
+});
+
+
+
+
+
 
 
 module.exports = router;
