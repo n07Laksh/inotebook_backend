@@ -13,7 +13,6 @@ require("dotenv").config({path:__dirname+'/./../.env'});
 
 
 const secretKEy = process.env.SECRET_KEY;
-console.log(secretKEy)
 
 // route1 create user using POST "/api/auth/createuser" No login required
 router.post('/createuser', [
@@ -56,7 +55,6 @@ router.post('/createuser', [
     }
     const jwtAuth = jwt.sign(data, secretKEy);
     res.json({ jwtAuth });
-    console.log(secretKEy)
 
   } catch (error) {
     console.error(error.message);
