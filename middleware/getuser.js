@@ -1,7 +1,9 @@
 const jwt = require("jsonwebtoken");
 
-//require to import the env files variables
-require("dotenv").config();
+// some methods to import the env files variables
+const path = require('path');
+// require("dotenv").config({path: path.resolve(__dirname, '../.env')});
+require("dotenv").config({path:__dirname+'/./../.env'});
 
 const secretKEy = process.env.SECRET_KEY;
 

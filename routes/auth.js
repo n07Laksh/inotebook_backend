@@ -5,11 +5,15 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const getuser = require('../middleware/getuser');
-//require to import the env files variables
-require("dotenv").config();
+
+// some methods to import the env files variables
+const path = require('path');
+// require("dotenv").config({path: path.resolve(__dirname, '../.env')});
+require("dotenv").config({path:__dirname+'/./../.env'});
 
 
 const secretKEy = process.env.SECRET_KEY;
+console.log(secretKEy)
 
 // route1 create user using POST "/api/auth/createuser" No login required
 router.post('/createuser', [
@@ -52,6 +56,7 @@ router.post('/createuser', [
     }
     const jwtAuth = jwt.sign(data, secretKEy);
     res.json({ jwtAuth });
+    console.log(secretKEy)
 
   } catch (error) {
     console.error(error.message);
