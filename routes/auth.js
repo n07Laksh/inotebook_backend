@@ -8,6 +8,7 @@ const getuser = require('../middleware/getuser');
 
 // some methods to import the env files variables
 const path = require('path');
+//require("dotenv").config();
 // require("dotenv").config({path: path.resolve(__dirname, '../.env')});
 require("dotenv").config({path:__dirname+'/./../.env'});
 
