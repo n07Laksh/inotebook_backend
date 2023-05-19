@@ -1,9 +1,13 @@
 
 const MongoDB = require("./db");
+const express = require('express');
+const cors = require('cors')
 
-var express = require('express');
-var app = express();
+const app = express();
 const port = 8000;
+
+
+app.use(cors())
 //this field is required when using json object
 app.use(express.json());
 

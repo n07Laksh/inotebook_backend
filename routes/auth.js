@@ -17,14 +17,16 @@ const secretKEy = process.env.SECRET_KEY;
 
 // route1 create user using POST "/api/auth/createuser" No login required
 router.post('/createuser', [
+  // express validator
   body("name", "Please enter valid name").isLength({ min: 3 }),
   body("email", "Please enter unique email").isEmail(),
   body("password", "password above 5 character").isLength({ min: 5 })
 ], async (req, res) => {
+  let success = false;
   //return function return error if there is a error
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({success, errors: errors.array() });
   }
 
   //error handling with try catch
@@ -32,7 +34,7 @@ router.post('/createuser', [
     //check wheather the email (email schema define unique) value exist already
     let user = await User.findOne({ email: req.body.email });
     if (user) {
-      return res.status(400).json({ error: "Sorry a user with this email already exists" });
+      return res.status(400).json({success, error: "Sorry a user with this email already exists" });
     }
 
     // hashing password for security reasons
@@ -55,7 +57,8 @@ router.post('/createuser', [
       }
     }
     const jwtAuth = jwt.sign(data, secretKEy);
-    res.json({ jwtAuth });
+    success = true;
+    res.json({success, jwtAuth });
 
   } catch (error) {
     console.error(error.message);
@@ -72,21 +75,22 @@ router.post('/login', [
   body("password", "password must be required").exists()
 ], async (req, res) => {
     //return function return error if there is a error
+    let success = false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success, errors: errors.array() });
     }
 
     const { email, password } = req.body;
     try {
       const user = await User.findOne({ email })
       if (!user) {
-        return res.status(400).json({ error: "Please use the correct values" });
+        return res.status(400).json({success, error: "Please use the correct values" });
       }
 
       const comparePass = await bcrypt.compare(password, user.password);
       if (!comparePass) {
-        return res.status(400).json({ error: "Please use the correct values" });
+        return res.status(400).json({success, error: "Please use the correct values" });
       }
 
       //creating json web token
@@ -97,7 +101,8 @@ router.post('/login', [
       }
       
       const jwtAuth = jwt.sign(data, secretKEy);
-      res.json({ jwtAuth });
+      success = true;
+      res.json({success, jwtAuth });
 
     } catch (error) {
       console.error(error.message);
