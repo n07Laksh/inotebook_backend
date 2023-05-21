@@ -6,7 +6,7 @@ const cors = require('cors')
 const app = express();
 const port = 8000;
 
-
+// using cors for browser and api connection codewithharry video 65
 app.use(cors())
 //this field is required when using json object
 app.use(express.json());
@@ -22,7 +22,4 @@ app.listen(port, () => {
    console.log(`Listening on port localhost:${port}`);
 });
 
-
-
-console.log('System server is Running...');
 MongoDB();
